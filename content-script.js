@@ -6,13 +6,19 @@ const TRACKER_CONFIG = {
 };
 
 const StorageService = {
-    isOwned: (id) => localStorage.getItem(id) === TRACKER_CONFIG.storageValue,
+    isOwned: async (id) => {
+        const result = await chrome.storage.local.get(id);
 
-    toggle: (id, isOwned) => {
+        return result[id] === TRACKER_CONFIG.storageValue;
+    },
+
+    toggle: async (id, isOwned) => {
         if (isOwned) {
-            localStorage.setItem(id, TRACKER_CONFIG.storageValue);
+            await chrome.storage.local.set({
+                [id]: TRACKER_CONFIG.storageValue
+            });
         } else {
-            localStorage.removeItem(id);
+            await chrome.storage.local.remove(id);
         }
     }
 };
@@ -45,18 +51,17 @@ const UIManager = {
         element.classList.add(TRACKER_CONFIG.classTrackable);
         element.setAttribute('data-track-id', itemId);
 
-        UIManager.updateOwnedState(
-            itemId,
-            StorageService.isOwned(itemId)
-        );
+        StorageService.isOwned(itemId).then((isOwned) => {
+            UIManager.updateOwnedState(itemId, isOwned);
+        });
 
-        element.addEventListener('click', (event) => {
+        element.addEventListener('click', async (event) => {
             event.preventDefault();
             event.stopPropagation();
 
-            const isNowOwned = !StorageService.isOwned(itemId);
+            const isNowOwned = !(await StorageService.isOwned(itemId));
 
-            StorageService.toggle(itemId, isNowOwned);
+            await StorageService.toggle(itemId, isNowOwned);
             UIManager.updateOwnedState(itemId, isNowOwned);
         });
 

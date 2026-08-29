@@ -1,17 +1,23 @@
 .tfm-trackable {
-    filter: grayscale(0%) opacity(100%);
+    display: inline-block;
+    filter: grayscale(0%);
     cursor: pointer;
-    transition: all 0.2s ease-in-out;
+    transition: filter 0.2s ease-in-out, transform 0.2s ease-in-out;
     border-radius: 5px;
     padding: 2px;
 }
 
-.tfm-trackable:hover {
-    filter: grayscale(30%) opacity(100%);
+.tfm-trackable:hover,
+.tfm-trackable.tfm-hovered {
+    filter: grayscale(30%);
     transform: scale(1.1);
 }
 
 .tfm-trackable.tfm-owned {
     filter: grayscale(100%) opacity(60%);
+}
+
+.tfm-trackable.tfm-owned:hover,
+.tfm-trackable.tfm-owned.tfm-hovered {
     transform: scale(1);
 }
