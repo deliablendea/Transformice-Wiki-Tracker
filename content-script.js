@@ -1,26 +1,46 @@
-const wikiImages = document.querySelectorAll('table.article-table img, table.wikitable img');
+const TRACKER_CONFIG = {
+    classTrackable: 'tfm-trackable',
+    classOwned: 'tfm-owned',
+    storageValue: 'owned'
+};
 
-wikiImages.forEach(img => {
-    if (img.width < 15 || img.height < 15)
-        return;
+const StorageSystem = {
+    isOwned: function(id) {
+        return localStorage.getItem(id) === TRACKER_CONFIG.storageValue;
+    },
+    toggleSave: function(id, isCurrentlyOwned) {
+        if (isCurrentlyOwned) {
+            localStorage.setItem(id, TRACKER_CONFIG.storageValue);
+        } else {
+            localStorage.removeItem(id);
+        }
+    }
+};
 
-    img.classList.add('tfm-trackable');
-
-    const itemId = img.getAttribute('data-image-name');
-    if (localStorage.getItem(itemId) === 'owned') {
-        img.classList.add('tfm-owned');
+function applyTrackingLogic(element, itemId) {
+    element.classList.add(TRACKER_CONFIG.classTrackable);
+    if (StorageSystem.isOwned(itemId)) {
+        element.classList.add(TRACKER_CONFIG.classOwned);
     }
 
-    img.addEventListener('click', function(e) {
+    element.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
 
-        this.classList.toggle('tfm-owned');
+        this.classList.toggle(TRACKER_CONFIG.classOwned);
+        const isNowOwned = this.classList.contains(TRACKER_CONFIG.classOwned);
 
-        if (this.classList.contains('tfm-owned')) {
-            localStorage.setItem(itemId, 'owned');
-        } else {
-            localStorage.removeItem(itemId);
-        }
-    })
-})
+        StorageSystem.toggleSave(itemId, isNowOwned);
+    });
+
+    function initTracker() {
+        const tableImages = document.querySelectorAll('table.article-table img, table.wikitable img');
+
+        tableImages.forEach(img => {
+            const itemId = img.getAttribute('data-image-name') || img.src;
+            applyTrackingLogic(img, itemId);
+        });
+    }
+
+    initTracker();
+}
