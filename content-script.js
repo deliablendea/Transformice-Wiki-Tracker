@@ -4,12 +4,10 @@ const TRACKER_CONFIG = {
     storageValue: 'owned'
 };
 
-const StorageSystem = {
-    isOwned: function(id) {
-        return localStorage.getItem(id) === TRACKER_CONFIG.storageValue;
-    },
-    toggleSave: function(id, isCurrentlyOwned) {
-        if (isCurrentlyOwned) {
+const StorageService = {
+    isOwned: (id) => localStorage.getItem(id) === TRACKER_CONFIG.storageValue,
+    toggle: (id, isOwned) => {
+        if (isOwned) {
             localStorage.setItem(id, TRACKER_CONFIG.storageValue);
         } else {
             localStorage.removeItem(id);
@@ -17,30 +15,52 @@ const StorageSystem = {
     }
 };
 
-function applyTrackingLogic(element, itemId) {
-    element.classList.add(TRACKER_CONFIG.classTrackable);
-    if (StorageSystem.isOwned(itemId)) {
-        element.classList.add(TRACKER_CONFIG.classOwned);
-    }
+const UIManager = {
+    applyTracking: (element, itemId) => {
+        element.classList.add(TRACKER_CONFIG.classTrackable);
 
-    element.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
+        if (StorageService.isOwned(itemId)) {
+            element.classList.add(TRACKER_CONFIG.classOwned);
+        }
 
-        this.classList.toggle(TRACKER_CONFIG.classOwned);
-        const isNowOwned = this.classList.contains(TRACKER_CONFIG.classOwned);
+        element.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
 
-        StorageSystem.toggleSave(itemId, isNowOwned);
-    });
+            this.classList.toggle(TRACKER_CONFIG.classOwned);
+            const isNowOwned = this.classList.contains(TRACKER_CONFIG.classOwned);
 
-    function initTracker() {
-        const tableImages = document.querySelectorAll('table.article-table img, table.wikitable img');
-
-        tableImages.forEach(img => {
-            const itemId = img.getAttribute('data-image-name') || img.src;
-            applyTrackingLogic(img, itemId);
+            StorageService.toggle(itemId, isNowOwned);
         });
     }
+};
 
-    initTracker();
-}
+const ItemCategorizer = {
+    getType: (cell) => {
+        if (!cell) return 'general';
+
+        switch (cell.cellIndex) {
+            case 3: return 'badge';
+            case 4: return 'orb';
+            case 5: return 'shop';
+            default: return 'item';
+        }
+    }
+};
+
+const initTracker = () => {
+    const tableImages = document.querySelectorAll('table.article-table img, table.wikitable img');
+
+    tableImages.forEach(img => {
+        const cell = img.closest('td');
+        const category = ItemCategorizer.getType(cell);
+
+        const rawName = img.getAttribute('data-image-name') || img.src;
+        const itemId = `${category}_${rawName}`;
+
+        img.classList.add(`tfm-${category}`);
+        UIManager.applyTracking(img, itemId);
+    });
+};
+
+initTracker();
