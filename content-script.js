@@ -7,18 +7,26 @@ const TRACKER_CONFIG = {
 
 const StorageService = {
     isOwned: async (id) => {
-        const result = await chrome.storage.local.get(id);
-
-        return result[id] === TRACKER_CONFIG.storageValue;
+        try {
+            const result = await chrome.storage.local.get(id);
+            return result[id] === TRACKER_CONFIG.storageValue;
+        } catch (error) {
+            console.error('Failed to read item state:', error);
+            return false;
+        }
     },
 
     toggle: async (id, isOwned) => {
-        if (isOwned) {
-            await chrome.storage.local.set({
-                [id]: TRACKER_CONFIG.storageValue
-            });
-        } else {
-            await chrome.storage.local.remove(id);
+        try {
+            if (isOwned) {
+                await chrome.storage.local.set({
+                    [id]: TRACKER_CONFIG.storageValue
+                });
+            } else {
+                await chrome.storage.local.remove(id);
+            }
+        } catch (error) {
+            console.error('Failed to update item state:', error);
         }
     }
 };
