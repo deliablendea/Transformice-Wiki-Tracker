@@ -14,6 +14,5 @@ Once installed, open the [Transformice Wiki page](https://transformice.fandom.co
 
 ## Usage
 
-Open the [Transformice Wiki page](https://transformice.fandom.com/wiki/Chest) and click a reward to mark it as owned.
-
+Open the [Transformice Wiki page](https://transformice.fandom.com/wiki/Chest) and click a reward to mark it as owned.<br>
 Click it again to remove the owned state.
