@@ -6,7 +6,7 @@ A small Chrome extension for tracking which Transformice badges, titles, shop it
 
 ## Installation
 
-1. Open the extension's Chrome Web Store page: [![Available in the Chrome Web Store](https://img.shields.io/badge/Chrome%20Web%20Store-Available-blue?logo=googlechrome)](YOUR_CHROME_WEB_STORE_LINK)
+1. Open the extension's Chrome Web Store page: [![Available in the Chrome Web Store](https://img.shields.io/badge/Chrome%20Web%20Store-Available-blue?logo=googlechrome)](https://chromewebstore.google.com/detail/transformice-wiki-tracker/cgcghjmdjkmadibolhdbikfienlkknll)
 2. Click **Add to Chrome**.
 3. Confirm by clicking **Add extension**.
 
