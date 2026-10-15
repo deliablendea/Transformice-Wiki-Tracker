@@ -61,7 +61,7 @@ const UIManager = {
         const exportBtn = document.createElement('button');
         exportBtn.textContent = 'Export';
         exportBtn.onclick = async () => {
-            const data = await chrome.storage.local.get(null); // Ia tot storage-ul
+            const data = await chrome.storage.local.get(null);
             const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
