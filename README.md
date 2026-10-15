@@ -16,3 +16,8 @@ Once installed, open the [Transformice Wiki page](https://transformice.fandom.co
 
 Open the [Transformice Wiki page](https://transformice.fandom.com/wiki/Chest) and click a reward to mark it as owned.<br>
 Click it again to remove the owned state.
+
+## What's new in v1.1.0:
+- **Import/Export:** Backup or sync your progress across browsers.
+- **Hide Mode:** A new toggle to automatically hide collected items.
+- **UI Updates:** Collected titles are now crossed out for better visibility.
