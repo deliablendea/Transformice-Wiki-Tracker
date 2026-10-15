@@ -2,7 +2,8 @@ const TRACKER_CONFIG = {
     classTrackable: 'tfm-trackable',
     classOwned: 'tfm-owned',
     classHovered: 'tfm-hovered',
-    storageValue: 'owned'
+    storageValue: 'owned',
+    hideSettingsKey: 'tfm_hide_mode'
 };
 
 const StorageService = {
@@ -32,6 +33,76 @@ const StorageService = {
 };
 
 const UIManager = {
+    initControls: () => {
+        const container = document.createElement('div');
+        container.id = 'tfm-controls';
+
+        const hideLabel = document.createElement('label');
+        const hideCheckbox = document.createElement('input');
+        hideCheckbox.type = 'checkbox';
+        hideLabel.append(hideCheckbox, ' Hide collected');
+
+        chrome.storage.local.get(TRACKER_CONFIG.hideSettingsKey).then((result) => {
+            if (result[TRACKER_CONFIG.hideSettingsKey]) {
+                hideCheckbox.checked = true;
+                document.body.classList.add('tfm-hide-owned');
+            }
+        });
+
+        hideCheckbox.addEventListener('change', (e) => {
+            const isChecked = e.target.checked;
+            chrome.storage.local.set({ [TRACKER_CONFIG.hideSettingsKey]: isChecked });
+            document.body.classList.toggle('tfm-hide-owned', isChecked);
+        });
+
+        const btnContainer = document.createElement('div');
+        btnContainer.id = 'tfm-btn-container';
+
+        const exportBtn = document.createElement('button');
+        exportBtn.textContent = 'Export';
+        exportBtn.onclick = async () => {
+            const data = await chrome.storage.local.get(null); // Ia tot storage-ul
+            const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'transformice_tracker_backup.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        };
+
+        const importBtn = document.createElement('button');
+        importBtn.textContent = 'Import';
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = '.json';
+        fileInput.style.display = 'none';
+
+        importBtn.onclick = () => fileInput.click();
+
+        fileInput.onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async (ev) => {
+                try {
+                    const importedData = JSON.parse(ev.target.result);
+                    await chrome.storage.local.clear();
+                    await chrome.storage.local.set(importedData);
+                    alert('Progress imported successfully! Reloading page...');
+                    location.reload();
+                } catch (err) {
+                    alert('Error: Invalid backup file.');
+                }
+            };
+            reader.readAsText(file);
+        };
+
+        btnContainer.append(exportBtn, importBtn, fileInput);
+        container.append(hideLabel, btnContainer);
+        document.body.appendChild(container);
+    },
+
     getLinkedElements: (itemId) =>
         document.querySelectorAll(
             `[data-track-id="${CSS.escape(itemId)}"]`
@@ -139,6 +210,7 @@ const ItemNameExtractor = {
 };
 
 const initTracker = () => {
+    UIManager.initControls();
     const trackableElements = document.querySelectorAll(
         ':is(table.article-table, table.wikitable) :is(img, td:nth-child(2) a, td:nth-child(3) a)'
     );
